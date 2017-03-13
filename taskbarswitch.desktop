@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Taskbar Switch
+Comment=Module for switching between taskbar items using shortcuts
+Type=Service
+X-KDE-ServiceTypes=KDEDModule
+X-KDE-Library=taskbarswitch
+X-KDE-DBus-ModuleName=taskbarswitch
+X-KDE-Kded-autoload=true
+OnlyShowIn=KDE;
