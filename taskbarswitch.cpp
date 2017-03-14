@@ -17,9 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "taskbarswitch.h"
 
-#include <kaction.h>
+#include <qaction.h>
+#include <qdebug.h>
 #include <kactioncollection.h>
-#include <klocale.h>
+#include <kglobalaccel.h>
+#include <klocalizedstring.h>
 #include <kpluginfactory.h>
 #include <kpluginloader.h>
 #include <kwindowsystem.h>
@@ -35,6 +37,7 @@ K_EXPORT_PLUGIN(TaskbarSwitchFactory("taskbarswitch"))
 TaskbarSwitchModule::TaskbarSwitchModule( QObject* parent, const QList<QVariant>& )
     : KDEDModule( parent )
     {
+    KLocalizedString::setApplicationDomain( "taskbarswitch" );
     setModuleName( "taskbarswitch" );
     }
 
@@ -54,15 +57,16 @@ int main( int argc, char* argv[] )
 TaskbarSwitch::TaskbarSwitch()
     {
     KActionCollection *ac = new KActionCollection( this );
-    KAction* a = NULL;
+    ac->setComponentName( "taskbarswitch" );
+    QAction* a = NULL;
     a = ac->addAction( "Taskbar Item Left" );
     a->setText( i18n( "Switch One Taskbar Item to the Left" ));
-    a->setGlobalShortcut( KShortcut( Qt::META + Qt::Key_Left ));
-    connect( a, SIGNAL( triggered( bool )), SLOT( activateTaskbarItemLeft()));
+    KGlobalAccel::setGlobalShortcut( a, QKeySequence( Qt::META+Qt::Key_Left ));
+    connect( a, SIGNAL( triggered()), SLOT( activateTaskbarItemLeft()));
     a = ac->addAction( "Taskbar Item Right" );
     a->setText( i18n( "Switch One Taskbar Item to the Right" ));
-    a->setGlobalShortcut( KShortcut( Qt::META + Qt::Key_Right ));
-    connect( a, SIGNAL( triggered( bool )), SLOT( activateTaskbarItemRight()));
+    KGlobalAccel::setGlobalShortcut( a, QKeySequence( Qt::META+Qt::Key_Right ));
+    connect( a, SIGNAL( triggered()), SLOT( activateTaskbarItemRight()));
     }
 
 void TaskbarSwitch::activateTaskbarItemLeft()
@@ -232,7 +236,7 @@ void TaskbarSwitch::buildData()
     desktops.clear();
     foreach( WId w, KWindowSystem::windows())
         {
-        NETWinInfo inf( QX11Info::display(), w, QX11Info::appRootWindow(), NET::WMIconGeometry | NET::WMDesktop );
+        NETWinInfo inf( QX11Info::connection(), w, QX11Info::appRootWindow(), NET::WMIconGeometry | NET::WMDesktop, 0 );
         const NETRect r = inf.iconGeometry();
         if( r.size.width != 0 )
             rects[ w ] = QRect( r.pos.x, r.pos.y, r.size.width, r.size.height );
